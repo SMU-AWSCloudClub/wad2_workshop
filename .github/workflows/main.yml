@@ -1,0 +1,54 @@
+# Understanding Github Actions: https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions
+# Defines workflow name and trigger on push to main branch
+name: Deploy to S3
+
+# How the workflow is triggered
+on: 
+  push:
+    branches:
+      - main
+
+
+# Job to deploy code 
+# Runs-on basically  let you choose where you want these jobs to run on
+# See : https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Checks out code from repo - Think of it as cloning the git repo onto a server to run these commands
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Configure AWS credentials from secrets, since we are utilizing the AWS CLI later on, to sync our files with S3.
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-southeast-1
+    # Let's install the dependencies our frontend application needs, on the Github Runner
+    - name: Install dependencies
+      run: npm install --prefix ./vuejs-frontend
+    # Building your Vue Application:
+    - name: Build
+      run: npm run build --prefix ./vuejs-frontend
+
+    # Deploying to S3, 
+    # run: runs the CLI command!
+    # sync: syncs the dist folder with the S3 bucket
+    #     - name: Sync files from vuejs frontend to s3
+    # USE for ACLs: --acl public-read 
+    # For other --acl options, see: https://docs.aws.amazon.com/AmazonS3/latest/userguide/acl-overview.html#canned-acl
+    
+    - name: Deploy to S3  
+      run: aws s3 sync vuejs-frontend/dist s3://yourbucketnamehere/ --delete --acl public-read 
+
+    - name: Upload php backend to EC2 - Installing SSHPass (if does not exist on github actions runner)
+      run: sudo apt-get install -y sshpass
+
+    # use scp -v for verbose, to identify problems if not working, no need for sudo in scp
+    - name: Upload files to EC2 - PHP Backend!
+      run: sudo sshpass -p '${{secrets.EC2_PASS}}' scp -o StrictHostKeyChecking=no -r ./php-backend/* ubuntu@workshopnumber.bchwy.com:/var/www/html/
+  
