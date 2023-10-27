@@ -3,35 +3,38 @@
     <div class="row justify-content-center">
       <div class="col-12 col-md-8 col-lg-6">
 
+        <!-- Header -->
         <h1 class="mb-4 text-center mt-4">📔 Todos List</h1>
 
+        <!-- Loading state -->
         <div v-if="loading" class="alert alert-info">
           <p class="text-center">Loading todos.. </p>
         </div>
+
+        <!-- Empty state -->
         <div v-if="!posts.length">
           <p class="text-center">Your List is empty... </p>
         </div>
 
+        <!-- Todos List -->
         <div v-else>
           <div v-for="post in posts" class="card mb-3 border-primary">
-
-            <div class="card-body rounded-3" style="background-color:;">
+            <div class="card-body rounded-3">
+              <!-- Non-editing state -->
               <div v-if="editingPostId !== post.id" class="p-3">
                 <h2 class="card-title text-break">{{ post.title }}</h2>
                 <p class="card-text text-break" style="overflow-y: auto; max-height: 150px;">{{ post.content }}</p>
-
                 <div class="row">
                   <div class="col-6">
                     <button @click="editPost(post)" class="btn btn-primary me-2 w-100">Edit</button>
-
                   </div>
                   <div class="col-6">
                     <button @click="deletePost(post.id)" class="btn btn-danger w-100">Delete</button>
-
                   </div>
                 </div>
-
               </div>
+
+              <!-- Editing state -->
               <div v-else>
                 <div class="container pt-3">
                   <div class="form-group">
@@ -41,41 +44,34 @@
                     <textarea v-model="editingPost.content" class="form-control w-100" placeholder="Content"></textarea>
                   </div>
                 </div>
-
-
                 <div class="row">
                   <div class="col-6">
-                    <button @click="updatePost(editingPost)" class="btn btn-pri me-2 w-100 m-3">Save</button>
+                    <button @click="updatePost(editingPost)" class="btn btn-primary w-100 m-3">Save</button>
                   </div>
                   <div class="col-6">
-                    <button @click="cancelEdit" class="btn btn-sec w-75 m-3">Cancel</button>
+                    <button @click="cancelEdit" class="btn btn-secondary w-75 m-3">Cancel</button>
                   </div>
                 </div>
-
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Divider -->
         <hr class="shadow-sm">
 
-        <form @submit.prevent="addPost" class=" p-4 rounded">
-
+        <!-- Add Todo Form -->
+        <form @submit.prevent="addPost" class="p-4 rounded">
           <div class="form-group col-md-6 mx-auto pb-2 w-100">
-            <input v-model="newPost.title" class="form-control form-control-lg border-0 shadow-sm w-100 rounded"
-              placeholder="title">
+            <input v-model="newPost.title" class="form-control form-control-lg border-0 shadow-sm w-100 rounded" placeholder="Title">
           </div>
           <div class="form-group col-md-6 mx-auto w-100">
             <textarea v-model="newPost.content" class="form-control form-control-lg border-0 shadow-sm w-100 rounded"
-              placeholder="what do you need to do?" rows="5"></textarea>
+              placeholder="What do you need to do?" rows="5"></textarea>
           </div>
-
           <div class="form-group col-md-3 mx-auto w-100">
-            <button class="btn btn-primary btn-block rounded shadow-sm w-100">
-              Add Post
-            </button>
+            <button class="btn btn-primary btn-block rounded shadow-sm w-100">Add Post</button>
           </div>
-
         </form>
 
       </div>
